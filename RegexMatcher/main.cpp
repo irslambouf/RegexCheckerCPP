@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 	
 	try {
 		std::regex regex = std::regex(argv[1]);
-		std::cout << "[+] Input regex is good" << std::endl;
+		std::cout << "[+] Input regex is good - " << argv[1] << std::endl;
 	}
 	catch (std::regex_error& e) {
 		std::cerr << "ERROR: Invalid regex input" << std::endl;
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	BinaryLineReader * reader = new BinaryLineReader("C:\\OldParsed");
+	BinaryLineReader * reader = new BinaryLineReader("C:\\pwraw\\test");
 
 
 
