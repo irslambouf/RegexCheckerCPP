@@ -25,6 +25,12 @@ int main(int argc, char* argv[]) {
 
 	BinaryLineReader * reader = new BinaryLineReader("C:\\pwraw\\test");
 
+	char * line;
+	int length;
+	while ((line = reader->readLine(length)) != NULL)
+	{
+		std::cout << std::string(line, length);
+	}
 
 
 	system("pause");

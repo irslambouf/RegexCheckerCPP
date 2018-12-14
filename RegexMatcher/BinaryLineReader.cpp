@@ -47,7 +47,7 @@ BinaryLineReader::~BinaryLineReader()
 	input = NULL;
 }
 
-char * BinaryLineReader::readLine()
+char * BinaryLineReader::readLine(int& length)
 {
 	if (input == NULL) {
 		input = getFileStream();
@@ -57,7 +57,7 @@ char * BinaryLineReader::readLine()
 		}
 	}
 
-	return getByteLine();
+	return getByteLine(length);
 }
 
 std::string BinaryLineReader::getCurrentFile()
@@ -82,19 +82,23 @@ std::fstream * BinaryLineReader::getFileStream()
 		input = NULL;
 	}
 
-	std::fstream * stream = new std::fstream(fileList->at(fileListIndex), std::ios::in | std::ios::binary);
+	std::fstream * stream = new std::fstream(fileList->at(fileListIndex++), std::ios::in | std::ios::binary);
 
-	if (!input->good()) {
+	if (!stream->good()) {
 		std::cerr << "Error while opening file: " << fileList->at(fileListIndex).string() << std::endl;
 		return NULL;
 	}
 
-	std::cout << "Reading " << fileList->at(fileListIndex).string() << std::endl;
+	std::cout << "Reading " << fileList->at(fileListIndex - 1).string() << std::endl;
 	return stream;
 }
 
-char * BinaryLineReader::getByteLine()
+char * BinaryLineReader::getByteLine(int& length)
 {
+	// Clean up
+	delete[] returnBuffer;
+	returnBuffer = NULL;
+
 	while ((end = findEndOfLIne()) == -1) {
 		// We have reached end of file need to change fstream to next file
 		if (readToBuffer() <= 0) {
@@ -113,23 +117,28 @@ char * BinaryLineReader::getByteLine()
 			return NULL;
 		}
 
-		return getByteLine();
+		return getByteLine(length);
 	}
 
 	int destPosition = 0;
 	if (remainderBuffer != NULL) {
 		// We have data from previous buffer
-		returnBuffer = new char[sizeof(remainderBuffer) + (end - start) + 1];
-		memcpy(returnBuffer, remainderBuffer, sizeof(remainderBuffer));
+		returnBuffer = new char[remainderBufferSize + (end - start) + 1];
+		memcpy(returnBuffer, remainderBuffer, remainderBufferSize);
+		length = remainderBufferSize + (end - start) + 1;
+
+		// Cleanup
 		delete[] remainderBuffer;
 		remainderBuffer = NULL;
+		remainderBufferSize = NULL;
 	}
 	else {
 		returnBuffer = new char[end - start + 1];
+		length = end - start + 1;
 	}
 
 	memcpy(returnBuffer, readBuffer + (start * sizeof(char)), end - start + 1);
-	returnBuffer[sizeof(returnBuffer) - 1] = NEW_LINE;
+	returnBuffer[length - 1] = NEW_LINE;
 
 	if (readBuffer[end] == CARRIAGE_RETURN) {
 		start = end + 2;
@@ -141,9 +150,9 @@ char * BinaryLineReader::getByteLine()
 	}
 
 	// Empty line go to next non empty line
-	if (sizeof(returnBuffer) == 1 && returnBuffer[0] == NEW_LINE) {
+	if (length == 1 && returnBuffer[0] == NEW_LINE) {
 		// We have multiple empty lines skip to non-empty line
-		if (start >= sizeof(readBuffer) || readBuffer[start] == NEW_LINE || readBuffer[start] == CARRIAGE_RETURN) {
+		if (start >= DEFAULT_BUFFER_SIZE || readBuffer[start] == NEW_LINE || readBuffer[start] == CARRIAGE_RETURN) {
 			int possibleNewStart = 0;
 			skipRemainder = true;
 
@@ -169,16 +178,16 @@ char * BinaryLineReader::getByteLine()
 					return NULL;
 				}
 
-				return getByteLine();
+				return getByteLine(length);
 			}
 			else {
 				start = possibleNewStart;
 
-				return getByteLine();
+				return getByteLine(length);
 			}
 		}
 
-		return getByteLine();
+		return getByteLine(length);
 	}
 
 	return returnBuffer;
@@ -213,7 +222,7 @@ int BinaryLineReader::readToBuffer()
 	int count = 0;
 
 	// First read into buffer
-	if (sizeof(readBuffer) == DEFAULT_BUFFER_SIZE && readBufferSize == DEFAULT_BUFFER_SIZE && start == 0) {
+	if (readBufferSize == DEFAULT_BUFFER_SIZE && start == 0) {
 		input->read(readBuffer, readBufferSize);
 		count = input->gcount();
 
@@ -223,8 +232,8 @@ int BinaryLineReader::readToBuffer()
 	}
 	else {
 		// We have a buffer that contains data but still has space for more data
-		if (readBufferSize < sizeof(readBuffer) && sizeof(readBuffer) == DEFAULT_BUFFER_SIZE) {
-			input->read(readBuffer + readBufferSize * sizeof(char), sizeof(readBuffer) - readBufferSize);
+		if (readBufferSize < DEFAULT_BUFFER_SIZE) {
+			input->read(readBuffer + readBufferSize, DEFAULT_BUFFER_SIZE - readBufferSize);
 			count = input->gcount();
 		}
 		else {

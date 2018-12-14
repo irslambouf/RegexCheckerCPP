@@ -20,22 +20,24 @@ private:
 
 	int start = 0;
 	int end = 0;
-	int readBufferSize = DEFAULT_BUFFER_SIZE;	// 4096
+	
 	int lastStartIncrease = 0;
 	bool skipRemainder = false;
 
 	char * readBuffer = NULL;
+	int readBufferSize = DEFAULT_BUFFER_SIZE;	// 4096
 	char * remainderBuffer = NULL;
+	int remainderBufferSize = NULL;
 	char * returnBuffer = NULL;
 
 	std::fstream * getFileStream();
-	char * getByteLine();
+	char * getByteLine(int& length);
 	int findEndOfLIne();
 	int findFirstNotEndOfLine();
 	int readToBuffer();
 public:
 	BinaryLineReader(std::string FILE_OR_FOLDER);
 	~BinaryLineReader();
-	char * readLine();
+	char * readLine(int& length);
 	std::string getCurrentFile();
 };
