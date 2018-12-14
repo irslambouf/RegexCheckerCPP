@@ -106,11 +106,14 @@ char * BinaryLineReader::getByteLine(int& length)
 		}
 	}
 
+	// When file does not end with /r or /n
+	if (end == -1 && start != 0 && start < readBufferSize) {
+		end = readBufferSize;
+	}
+
 	// We reached end of file
 	if (end == -1) {
-		start = 0;
-		delete[] readBuffer;
-		readBuffer = new char[DEFAULT_BUFFER_SIZE];
+		start -= lastStartIncrease;
 		input = getFileStream();	// Cleanup done in method
 
 		if (input == NULL) {
@@ -169,9 +172,6 @@ char * BinaryLineReader::getByteLine(int& length)
 
 			// Setup new fstream
 			if (possibleNewStart == -1) {
-				start = 0;
-				delete[] readBuffer;
-				readBuffer = new char[DEFAULT_BUFFER_SIZE];
 				input = getFileStream();
 
 				if (input == NULL) {
@@ -233,7 +233,7 @@ int BinaryLineReader::readToBuffer()
 	else {
 		// We have a buffer that contains data but still has space for more data
 		if (readBufferSize < DEFAULT_BUFFER_SIZE) {
-			input->read(readBuffer + readBufferSize, DEFAULT_BUFFER_SIZE - readBufferSize);
+			input->read(readBuffer + (readBufferSize*sizeof(char)), DEFAULT_BUFFER_SIZE - readBufferSize);
 			count = input->gcount();
 		}
 		else {
