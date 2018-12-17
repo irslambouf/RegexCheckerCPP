@@ -23,13 +23,20 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	BinaryLineReader * reader = new BinaryLineReader("C:\\pwraw\\test");
+	std::fstream fileOrFolder(argv[2], std::ios::binary | std::ios::in);
+
+	if (fileOrFolder.is_open() && fileOrFolder.good()) {
+		std::cout << "[+] Input is good - " << argv[2] << std::endl;
+		fileOrFolder.close();
+	}
+
+	BinaryLineReader * reader = new BinaryLineReader("C:\\pwraw\\Exploit.in\\exploit.in\\Exploit.in");
 
 	char * line;
 	int length;
 	while ((line = reader->readLine(length)) != NULL)
 	{
-		std::cout << std::string(line, length);
+		//std::cout << std::string(line, length);
 	}
 
 

@@ -110,6 +110,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -119,9 +120,11 @@
   <ItemGroup>
     <ClCompile Include="BinaryLineReader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MemoryMapped.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryLineReader.h" />
+    <ClInclude Include="MemoryMapped.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

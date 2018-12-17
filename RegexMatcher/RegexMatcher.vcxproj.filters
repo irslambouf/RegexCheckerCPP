@@ -21,9 +21,15 @@
     <ClCompile Include="BinaryLineReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MemoryMapped.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryLineReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryMapped.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

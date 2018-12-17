@@ -19,32 +19,45 @@ BinaryLineReader::BinaryLineReader(std::string FILE_OR_FOLDER)
 	fileList = new std::vector<fs::path>();
 
 	if (this->isDirectory) {
+		std::cout << "[+] Input is folder, listing files:" << std::endl;
 		for (const fs::path & path : fs::directory_iterator(FILE_OR_FOLDER)) {
 			fileList->push_back(path);
+			std::cout << "- " << path.string() << std::endl;
 		}
 	}
 	else
 	{
+		std::cout << "[+] Input is file, " << path.string() << std::endl;
 		fileList->push_back(path);
 	}
 }
 
 BinaryLineReader::~BinaryLineReader()
 {
-	delete[] readBuffer;
-	readBuffer = NULL;
-
-	delete[] remainderBuffer;
-	remainderBuffer = NULL;
-
-	delete[] returnBuffer;
-	returnBuffer = NULL;
-
-	delete fileList;
-	fileList = NULL;
-
-	delete input;
-	input = NULL;
+	if (readBuffer != NULL) {
+		delete[] readBuffer;
+		readBuffer = NULL;
+	}
+	
+	if (remainderBuffer != NULL) {
+		delete[] remainderBuffer;
+		remainderBuffer = NULL;
+	}
+	
+	if (returnBuffer != NULL) {
+		delete[] returnBuffer;
+		returnBuffer = NULL;
+	}
+	
+	if (fileList != NULL) {
+		delete fileList;
+		fileList = NULL;
+	}
+	
+	if (input != NULL) {
+		delete input;
+		input = NULL;
+	}
 }
 
 char * BinaryLineReader::readLine(int& length)
@@ -62,7 +75,7 @@ char * BinaryLineReader::readLine(int& length)
 
 std::string BinaryLineReader::getCurrentFile()
 {
-	return fileList->at(fileList->size() - 1).string();
+	return fileList->at(fileListIndex - 1).string();
 }
 
 std::fstream * BinaryLineReader::getFileStream()
@@ -71,6 +84,7 @@ std::fstream * BinaryLineReader::getFileStream()
 		return NULL;
 	}
 
+	// We readched end of fileList
 	if (fileListIndex == fileList->size()) {
 		return NULL;
 	}
@@ -96,17 +110,20 @@ std::fstream * BinaryLineReader::getFileStream()
 char * BinaryLineReader::getByteLine(int& length)
 {
 	// Clean up
-	delete[] returnBuffer;
-	returnBuffer = NULL;
-
+	if (returnBuffer != NULL) {
+		delete[] returnBuffer;
+		returnBuffer = NULL;
+	}
+	
 	while ((end = findEndOfLIne()) == -1) {
-		// We have reached end of file need to change fstream to next file
+		// We have reached end of file need to change fstream to the next file
 		if (readToBuffer() <= 0) {
 			break;
 		}
 	}
 
 	// When file does not end with /r or /n
+	// i.e. When last line of file is not an empty line
 	if (end == -1 && start != 0 && start < readBufferSize) {
 		end = readBufferSize;
 	}
@@ -141,6 +158,8 @@ char * BinaryLineReader::getByteLine(int& length)
 	}
 
 	memcpy(returnBuffer, readBuffer + (start * sizeof(char)), end - start + 1);
+	
+	// Override end of line char to \n
 	returnBuffer[length - 1] = NEW_LINE;
 
 	if (readBuffer[end] == CARRIAGE_RETURN) {
@@ -152,7 +171,7 @@ char * BinaryLineReader::getByteLine(int& length)
 		lastStartIncrease = 1;
 	}
 
-	// Empty line go to next non empty line
+	// Empty line -> go to next non empty line
 	if (length == 1 && returnBuffer[0] == NEW_LINE) {
 		// We have multiple empty lines skip to non-empty line
 		if (start >= DEFAULT_BUFFER_SIZE || readBuffer[start] == NEW_LINE || readBuffer[start] == CARRIAGE_RETURN) {
@@ -237,7 +256,7 @@ int BinaryLineReader::readToBuffer()
 			count = input->gcount();
 		}
 		else {
-			// We need to read more data
+			// We need to read more data but buffer is full
 			if (readBufferSize - start > 0) {
 				if (!skipRemainder) {
 					remainderBuffer = new char[readBufferSize - start];
@@ -246,13 +265,14 @@ int BinaryLineReader::readToBuffer()
 				start = 0;
 			}
 			else {
-				if (readBufferSize - start < 0 && lastStartIncrease == 2) {
+				((readBufferSize - start < 0 && lastStartIncrease == 2) ?  start = 1: start = 2);
+				/*if (readBufferSize - start < 0 && lastStartIncrease == 2) {
 					start = 1;
 				}
 				else
 				{
 					start = 0;
-				}
+				}*/
 			}
 
 			delete[] readBuffer;
