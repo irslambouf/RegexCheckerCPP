@@ -119,11 +119,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BinaryLineReader.cpp" />
+    <ClCompile Include="BinaryMappedReader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryMapped.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryLineReader.h" />
+    <ClInclude Include="BinaryMappedReader.h" />
     <ClInclude Include="MemoryMapped.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

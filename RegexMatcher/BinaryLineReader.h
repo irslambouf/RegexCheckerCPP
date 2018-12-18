@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <fstream>
 #include <vector>
+#include "MemoryMapped.h"
+#include <cstdio>
 
 namespace fs = std::filesystem;
 
@@ -20,8 +22,6 @@ private:
 
 	int start = 0;
 	int end = 0;
-
-
 	
 	int lastStartIncrease = 0;
 	bool skipRemainder = false;

@@ -265,7 +265,7 @@ int BinaryLineReader::readToBuffer()
 				start = 0;
 			}
 			else {
-				((readBufferSize - start < 0 && lastStartIncrease == 2) ?  start = 1: start = 2);
+				((readBufferSize - start < 0 && lastStartIncrease == 2) ?  start = 1: start = 0);
 				/*if (readBufferSize - start < 0 && lastStartIncrease == 2) {
 					start = 1;
 				}

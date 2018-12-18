@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 #include <regex>
-#include "BinaryLineReader.h"
+
+#include "BinaryMappedReader.h"
 
 int main(int argc, char* argv[]) {
 	if (argc < 4) {
@@ -23,21 +24,68 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	std::fstream fileOrFolder(argv[2], std::ios::binary | std::ios::in);
+	/*std::fstream fileOrFolder("C:\\pwraw\\Exploit.in\\exploit.in\\Exploit.in", std::ios::binary | std::ios::in);
+	bool isDirectory;
+	std::vector<std::filesystem::path> fileList;
+	std::filesystem::path p;
 
 	if (fileOrFolder.is_open() && fileOrFolder.good()) {
 		std::cout << "[+] Input is good - " << argv[2] << std::endl;
 		fileOrFolder.close();
+
+		p = std::filesystem::path(argv[2]);
+		std::error_code errorCode;
+
+		if (std::filesystem::is_directory(p, errorCode)) {
+			isDirectory = true;
+		}
+
+		if (errorCode) {
+			std::cerr << "Error when calling is_directory, " << errorCode.message();
+			std::cerr << "Exiting..." << std::endl;
+			return -1;
+		}
 	}
-
-	BinaryLineReader * reader = new BinaryLineReader("C:\\pwraw\\Exploit.in\\exploit.in\\Exploit.in");
-
-	char * line;
-	int length;
-	while ((line = reader->readLine(length)) != NULL)
+	else
 	{
-		//std::cout << std::string(line, length);
+		std::cerr << "Error while trying to read input file or folder" << std::endl;
+		std::cerr << argv[2] << std::endl;
+		std::cerr << "Exiting..." << std::endl;
+		return -1;
+	}*/
+	/*bool isDirectory = true;
+	std::vector<std::filesystem::path> fileList;
+	std::filesystem::path p;
+	fileList = std::vector<std::filesystem::path>();
+	if (isDirectory) {
+		std::cout << "[+] Input is folder, listing files:" << std::endl;
+		for (const std::filesystem::path & path : std::filesystem::directory_iterator(argv[2])) {
+			fileList.push_back(path);
+			std::cout << "- " << path.string() << std::endl;
+		}
 	}
+	else
+	{
+		std::cout << "[+] Input is file, " << p.string() << std::endl;
+		fileList.push_back(p);
+	}*/
+	
+	BinaryMappedReader reader = BinaryMappedReader(argv[2]);
+	char * line;
+	uint64_t count;
+	uint64_t size;
+	while ((line = reader.readLine(size)) != NULL) {
+		
+	}
+
+	//BinaryLineReader * reader = new BinaryLineReader("C:\\pwraw\\Exploit.in\\exploit.in\\Exploit.in");
+
+	//char * line;
+	//int length;
+	//while ((line = reader->readLine(length)) != NULL)
+	//{
+	//	//std::cout << std::string(line, length);
+	//}
 
 
 	system("pause");
